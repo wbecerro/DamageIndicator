@@ -10,6 +10,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.TextDisplay;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -28,7 +29,7 @@ public class DamageListener implements Listener {
         this.config = this.plugin.getConfig();
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void showDamageDealt(EntityDamageByEntityEvent event) {
         Entity damager = event.getDamager();
 
@@ -42,8 +43,7 @@ public class DamageListener implements Listener {
             return;
         }
 
-        DecimalFormat f = new DecimalFormat("##.00");
-        String damage = f.format(event.getDamage());
+        String damage = String.valueOf((int) event.getFinalDamage());
         player.spigot().sendMessage(ChatMessageType.ACTION_BAR, new TextComponent(config.getString("damageMessage")
                 .replace("%damage%", damage).replace("&", "§")));
 
