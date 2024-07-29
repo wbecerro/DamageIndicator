@@ -29,7 +29,7 @@ public class DamageListener implements Listener {
         this.config = this.plugin.getConfig();
     }
 
-    @EventHandler(priority = EventPriority.LOWEST)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void showDamageDealt(EntityDamageByEntityEvent event) {
         Entity damager = event.getDamager();
 
