@@ -31,14 +31,16 @@ public class DamageListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void showDamageDealt(EntityDamageByEntityEvent event) {
-        Entity damager = event.getDamager();
+        if(event.isCancelled()) {
+            return;
+        }
 
+        Entity damager = event.getDamager();
         if(!(damager instanceof Player)) {
             return;
         }
 
         Player player = (Player) damager;
-
         if(!player.hasPermission("damageindicator.use")) {
             return;
         }
