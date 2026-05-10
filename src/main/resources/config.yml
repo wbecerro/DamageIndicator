@@ -1,2 +1,4 @@
 damageMessage: "&cDamage: %damage%"
 damageTime: 10
+lowDurability: "&cThe item %item%&c has %uses% left."
+lowDurabilitySound: "BLOCK_ANVIL_LAND"
