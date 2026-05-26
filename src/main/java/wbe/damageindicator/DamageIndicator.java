@@ -12,7 +12,7 @@ public class DamageIndicator extends JavaPlugin {
 
     private FileConfiguration config = getConfig();
 
-    public static HashMap<Player, Long> warnings = new HashMap<>();
+    public static HashMap<Player, PlayerInfo> warnings = new HashMap<>();
 
     @Override
     public void onEnable() {

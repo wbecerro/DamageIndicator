@@ -16,6 +16,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerItemDamageEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -83,14 +84,30 @@ public class DamageListener implements Listener {
             return;
         }
 
-        DamageIndicator.warnings.putIfAbsent(player, 0L);
-        long epoch = DamageIndicator.warnings.get(player);
+        ItemStack item = event.getItem();
+        long epoch;
+        switch(item.getType().getEquipmentSlot()) {
+            case HEAD:
+                epoch = DamageIndicator.warnings.get(player).getHelmetLastWarning();
+                break;
+            case CHEST:
+                epoch = DamageIndicator.warnings.get(player).getChestplateLastWarning();
+                break;
+            case LEGS:
+                epoch = DamageIndicator.warnings.get(player).getLeggingsLastWarning();
+                break;
+            case FEET:
+                epoch = DamageIndicator.warnings.get(player).getBootsLastWarning();
+                break;
+            default:
+                epoch = DamageIndicator.warnings.get(player).getHandLastWarning();
+                break;
+        }
 
-        if(Instant.now().getEpochSecond() - epoch < 4) {
+        if(Instant.now().getEpochSecond() - epoch < 3) {
             return;
         }
 
-        ItemStack item = event.getItem();
         Damageable itemMeta = (Damageable) item.getItemMeta();
         int maxDamage = item.getType().getMaxDurability();
         if(itemMeta.hasMaxDamage()) {
@@ -108,15 +125,43 @@ public class DamageListener implements Listener {
                 .replace("%uses%", String.valueOf(currentDurability))
                 .replace("&", "§");
 
-        DamageIndicator.warnings.put(player, Instant.now().getEpochSecond());
+        boolean messaged = false;
         if(currentDurability <= five) {
+            messaged = true;
             player.sendMessage(message);
             player.playSound(player, Sound.valueOf(config.getString("lowDurabilitySound")), 1f, 1f);
         } else if(currentDurability <= ten) {
+            messaged = true;
             player.sendMessage(message);
             player.playSound(player, Sound.valueOf(config.getString("lowDurabilitySound")), 1f, 1f);
         } else if(currentDurability <= fifteen) {
+            messaged = true;
             player.sendMessage(message);
         }
+
+        if(messaged) {
+            switch(item.getType().getEquipmentSlot()) {
+                case HEAD:
+                    DamageIndicator.warnings.get(player).setHelmetLastWarning(Instant.now().getEpochSecond());
+                    break;
+                case CHEST:
+                    DamageIndicator.warnings.get(player).setChestplateLastWarning(Instant.now().getEpochSecond());
+                    break;
+                case LEGS:
+                    DamageIndicator.warnings.get(player).setLeggingsLastWarning(Instant.now().getEpochSecond());
+                    break;
+                case FEET:
+                    DamageIndicator.warnings.get(player).setBootsLastWarning(Instant.now().getEpochSecond());
+                    break;
+                default:
+                    DamageIndicator.warnings.get(player).setHandLastWarning(Instant.now().getEpochSecond());
+                    break;
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.NORMAL)
+    public void addPlayersOnJoin(PlayerJoinEvent event) {
+        DamageIndicator.warnings.put(event.getPlayer(), new PlayerInfo(event.getPlayer()));
     }
 }
